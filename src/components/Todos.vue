@@ -11,11 +11,11 @@
 
 <div class="main">
 
-    <input type="checkbox" class="toggle-all" v-model="allDone">
+    <input type="checkbox" class="toggle-all" v-model="allDone"> <!-- n'apparait pas, présent dasn el DOM mais ne se voit pas et l'intéraction est impossible -->
 
     <ul class="todo-list">
 
-        <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed}">
+        <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed}"> <!-- :key="todo.id ne sert à rien, mais si il est absent vsc m'inscris une erreur -->
 
             <div class="view">
 
@@ -32,7 +32,7 @@
 </div>
 
 <footer class="footer">
-    <span class="todo-count"><strong>{{ remaining }}</strong> tâches à faire</span>
+    <span class="todo-count"><strong>{{ remaining }}</strong> tâches à faire</span> <!--compteur-->
 
     <ul class="filters">
         <li><a href="#" :class="{selected: filter === 'all'}" @click.prevent="filter ='all'">Toutes</a></li>
@@ -63,14 +63,16 @@ export default {
     },
 
     methods: {
-        addTodo () {
+
+        //ajoute, supprime une tache
+        addTodo () { //lié input ligne 7
             this.todos.push({
                 completed: false,
                 name: this.newTodo
             })
             this.newTodo = ''
         },
-        deleteTodo () {
+        deleteTodo () { //lié button ligne 26
             this.todo = this.todo.filter(i => i !== todo)
         }
         
@@ -78,6 +80,7 @@ export default {
 
     computed: {
 
+        //relié a l'input qui ne s'affiche pas, il sert à coché la totalité des taches
         allDone: {
             get () {
                 return this.remaining === 0
@@ -90,11 +93,16 @@ export default {
             }
         },
 
+        //compteur
         remaining () {
             return this.todos.filter(todo => !todo.completed).length
         },
 
+        //système de filtre relié ligne 18
         filteredTodos () {
+
+            //Ce if else bloque toutes les fonctionnalités. Si je le commente en laissant le "return this.todos" 
+            //j'en retrouve certaines mais ça ne fonctionne pas comme ça devrait
 
             if (this.filter === 'todo') {
                 return this.todos(todo => !todo.completed)
