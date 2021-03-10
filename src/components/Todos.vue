@@ -98,11 +98,12 @@ export default {
             return this.todos.filter(todo => !todo.completed).length
         },
 
-        //système de filtre relié ligne 18
+        //système de filtre relié ligne 18 et avec la liste ligne 37
         filteredTodos () {
 
             //Ce if else bloque toutes les fonctionnalités. Si je le commente en laissant le "return this.todos" 
             //j'en retrouve certaines mais ça ne fonctionne pas comme ça devrait
+            
 
             if (this.filter === 'todo') {
                 return this.todos(todo => !todo.completed)
