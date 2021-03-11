@@ -1,6 +1,9 @@
 <template>
   <div id="app">
+
+  
     <todos></todos>
+    
   </div>
 </template>
 
@@ -8,7 +11,19 @@
 import Todos from './components/Todos'
 
 export default {
+
   name: 'App',
+
+  data: () => {
+
+    return {
+      todos: [{
+        name: 'Demo',
+        completed: true
+      }]
+    }
+  },
+
   components: {
     Todos
   }

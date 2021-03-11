@@ -11,28 +11,31 @@
 
 <div class="main">
 
-    <input type="checkbox" class="toggle-all" v-model="allDone"> <!-- n'apparait pas, présent dasn el DOM mais ne se voit pas et l'intéraction est impossible -->
+   <input type="checkbox" class="toggle-all" v-model="allDone"><label for="toggle-all"></label> 
 
     <ul class="todo-list">
 
-        <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed}"> <!-- :key="todo.id ne sert à rien, mais si il est absent vsc m'inscris une erreur -->
+        <li class="todo" v-for="todo in filteredTodos" :key="todo.id" :class="{completed: todo.completed, editing: todo === editing}">
 
             <div class="view">
 
                 <input type="checkbox" v-model="todo.completed" class="toggle">
 
-                <label>{{ todo.name }}</label>
+                <label @dblclick="editTodo(todo)">{{ todo.name }}</label>
 
                 <button class="destroy" @click.prevent="deleteTodo(todo)"></button>
 
             </div>
 
+            <input type="text" class="edit" v-model="todo.name" @keyup.enter="doneEdit" @blur="doneEdit" @keyup.esc="cancelEdit" v-focus="todo === editing">
+
         </li>
     </ul>
 </div>
 
-<footer class="footer">
-    <span class="todo-count"><strong>{{ remaining }}</strong> tâches à faire</span> <!--compteur-->
+<footer class="footer" v-show="hasTodos">
+
+    <span class="todo-count"><strong>{{ remaining }}</strong> tâches à faire</span> 
 
     <ul class="filters">
         <li><a href="#" :class="{selected: filter === 'all'}" @click.prevent="filter ='all'">Toutes</a></li>
@@ -40,80 +43,108 @@
         <li><a href="#" :class="{selected: filter === 'done'}" @click.prevent="filter ='done'">Faites</a></li>
     </ul>
 
+    <button class="clear-completed" v-show="completedTodo" @click.prevent="deleteCompleted">Tout supprimer</button>
+    
 </footer>
 
     </section>
 </template>
 
 <script>
-
+import Vue from 'vue'
 
 export default {
     data () {
         return {
 
-            todos: [{
-                name:'Tâche de test',
-                completed: false
-            }],
-
+            todos: [],
             newTodo: '',
-            filter: 'all'
+            filter: 'all',
+            editing: null,
+            oldTodo: ''
         }
     },
 
     methods: {
-
-        //ajoute, supprime une tache
-        addTodo () { //lié input ligne 7
+       
+        addTodo () {
             this.todos.push({
                 completed: false,
                 name: this.newTodo
             })
             this.newTodo = ''
         },
-        deleteTodo () { //lié button ligne 26
-            this.todo = this.todo.filter(i => i !== todo)
+
+        deleteTodo (todo) { 
+            this.todos = this.todos.filter(i => i !== todo)
+        },
+
+        deleteCompleted () {
+            this.todos = this.todos.filter(todo => !todo.completed)
+        },
+
+        editTodo (todo) {
+            this.editing = todo
+            this.oldTodo = todo.name
+        },
+
+        doneEdit () {
+            this.editing = null
+        },
+        cancelEdit () {
+            this.editing.name = this.oldTodo
+            this.doneEdit()
         }
-        
     },
 
     computed: {
 
-        //relié a l'input qui ne s'affiche pas, il sert à coché la totalité des taches
         allDone: {
             get () {
                 return this.remaining === 0
             },
 
             set (value) {
-                this.todo.forEach(todo => {
-                    todocompleted = value
+                this.todos.forEach(todo => {
+                    todo.completed = value
                 })
+
             }
         },
 
-        //compteur
+        hasTodos () {
+            return this.todos.length > 0
+        },
+
         remaining () {
             return this.todos.filter(todo => !todo.completed).length
         },
 
-        //système de filtre relié ligne 18 et avec la liste ligne 37
+        completedTodo () {
+            return this.todos.filter(todo => todo.completed).length
+        },
+
         filteredTodos () {
 
-            //Ce if else bloque toutes les fonctionnalités. Si je le commente en laissant le "return this.todos" 
-            //j'en retrouve certaines mais ça ne fonctionne pas comme ça devrait
-            
-
             if (this.filter === 'todo') {
-                return this.todos(todo => !todo.completed)
+                return this.todos.filter(todo => !todo.completed)
 
             } else if (this.filter === 'done') {
-                return this.todos(todo => todo.completed)
+                return this.todos.filter(todo => todo.completed)
 
             } 
             return this.todos   
-            
+        }
+    },
+
+    directives: {
+        focus: (el, value) => {
+            if (value) {
+                Vue.nextTick(_ => {
+                    el.focus()
+                })
+                
+            }
         }
     }
         
